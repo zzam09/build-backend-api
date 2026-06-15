@@ -1,17 +1,19 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import * as schema from './schema';
+// src/db/client.ts
+// Database connection using postgres.js — compatible with Supabase pooler
+
+import { drizzle } from 'drizzle-orm/postgres-js'
+import postgres from 'postgres'
+import * as schema from './schema'
 
 if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is not set');
+  throw new Error('DATABASE_URL environment variable is not set')
 }
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+const client = postgres(process.env.DATABASE_URL, {
+  max: 1,
+  ssl: 'require',
+})
 
-export const db = drizzle(pool, {
-  schema,
-});
+export const db = drizzle(client, { schema })
 
-export type Database = typeof db;
+export type Database = typeof db
